@@ -1,12 +1,27 @@
 import CartIcon from "../Cart/CartIcon"
 import classes from "./HeaderCartButton.module.css"
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import CartContext from "../store/cart-context"
 const HeaderCartButton = props => {
-    const cartContext = useContext(CartContext)
-    const numberOfitems = cartContext.items.reduce((currentNumber, item) => currentNumber+item.amount, 0)
+    const [buttonAnimation, setButttonAnimation] = useState(false)
+    const { items } = useContext(CartContext)
+    useEffect(
+        () => {
+            if(items.length === 0) {
+                return
+            }
+            setButttonAnimation(true)
+            const timer = setTimeout(() => setButttonAnimation(false), 300)
 
-    return <button className={classes.button} onClick={props.onClick}>
+            return () => clearTimeout(timer)
+        }, [items]
+        
+    )
+    const numberOfitems = items.reduce((currentNumber, item) => currentNumber+item.amount, 0)
+
+    const btnClass = `${classes.button} ${buttonAnimation ? classes.bump : ''}`
+
+    return <button className={btnClass} onClick={props.onClick}>
         <span className={classes.icon}><CartIcon /></span>
         <span>Your cart</span>
         <span className={classes.badge}>{numberOfitems}</span>
