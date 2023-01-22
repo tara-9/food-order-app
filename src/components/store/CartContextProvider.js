@@ -6,8 +6,39 @@ const defaultCartContext = {
 }
 const cartReducer = (state,action) => {
     if(action.type === 'ADD') {
-        const updatedItems = state.items.concat(action.item)
+        const cartItemIndex = state.items.findIndex(item => item.id === action.item.id)
+        const cartItem = state.items[cartItemIndex]
+        let updatedItems
+        if(cartItem) {
+            const updatedItem =  {...cartItem}
+            updatedItem.amount+=action.item.amount
+            updatedItems= [...state.items]
+            updatedItems[cartItemIndex] = updatedItem
+        } else{
+            updatedItems = state.items.concat(action.item)
+        }
+        
         const updatedAmount = state.totalAmount + action.item.price * action.item.amount
+        return {
+            items:updatedItems,
+            totalAmount: updatedAmount
+        }
+    }
+    if(action.type === 'REMOVE') {
+        const cartItemIndex = state.items.findIndex(item => item.id === action.id)
+        const cartItem = state.items[cartItemIndex]
+        let updatedItems
+        if(cartItem.amount === 1) {
+            updatedItems = state.items.filter(item => item.id !== action.id)
+        } else{
+            const updatedItem =  {...cartItem}
+            updatedItem.amount-=1
+            updatedItems= [...state.items]
+            updatedItems[cartItemIndex] = updatedItem
+        }
+        
+        const updatedAmount = state.totalAmount - cartItem.price
+        
         return {
             items:updatedItems,
             totalAmount: updatedAmount
